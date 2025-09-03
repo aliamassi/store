@@ -12,6 +12,9 @@
 {{--    <script src="https://cdn.tailwindcss.com"></script>--}}
     @vite(['resources/js/app.js','resources/css/app.css'])
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
 <div class="max-w-7xl mx-auto p-6">
@@ -140,6 +143,15 @@
                         <div class="rounded-xl bg-red-50 text-red-800 px-4 py-3">{{ session('error') }}</div>
                     @endif
                 </div>
+            @endif
+            @if(session('success'))
+                <script>
+                    toastr.success("{{ session('success') }}", "Added to Cart", {
+                        timeOut: 2000,
+                        closeButton: true,
+                        progressBar: true
+                    });
+                </script>
             @endif
         </aside>
     </div>
