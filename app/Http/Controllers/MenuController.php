@@ -103,11 +103,13 @@ class MenuController extends Controller
             ];
         }
         $cart[$product['id']]['qty']++;
-
+        $total = $this->cartTotal($cart);
         session(['cart' => $cart]);
         return back()->with([
             'success'=> $product['name'].' added to cart.',
-            'showCartBar' => true
+            'showCartBar' => true,
+            'total' => "$$total",
+            'count' =>  array_sum(array_map(fn($i)=>$i['qty'],$cart)),
         ]);
     }
 

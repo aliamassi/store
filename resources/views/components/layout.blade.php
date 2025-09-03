@@ -183,6 +183,7 @@
             padding: 10px 14px;
             text-decoration: none;
             white-space: nowrap;
+            width: 100%;
         }
         #mobile-cart-bar .count {
             display: inline-flex;
@@ -206,18 +207,31 @@
 
     <div id="mobile-cart-bar" role="region" aria-label="Cart notification">
         <div class="inner">
-            <div class="title">
-                <span aria-hidden="true">🛒</span>
-                <span>Item added to your cart</span>
-            </div>
+{{--            <div class="title">--}}
+{{--                <span aria-hidden="true">🛒</span>--}}
+{{--                <span>Item added to your cart</span>--}}
+{{--            </div>--}}
 
             {{-- Adjust the count if you track it; this example uses the common cart facade --}}
-            <a class="btn-cart" href="#cart">
-                See Your Cart
-                @if(function_exists('Cart') || class_exists('\Cart'))
-                    <span class="count">{{ \Cart::count() }}</span>
-                @endif
+            <a href="#cart"
+               class="btn-cart relative flex items-center justify-between w-full max-w-sm bg-yellow-400 text-black font-bold rounded-lg px-4 py-2 shadow-md">
+
+                {{-- Left: Total --}}
+                <span class="total text-sm font-semibold">
+                    {{ session('total') }}
+                </span>
+
+                {{-- Center: Label --}}
+                <span class="flex-1 text-center">
+                    See Your Cart
+                </span>
+
+                {{-- Right: Count --}}
+                <span class="count text-xs font-bold bg-white text-black rounded-full px-2 py-1">
+                    {{ session('count') }}
+                </span>
             </a>
+
         </div>
     </div>
 
