@@ -45,6 +45,20 @@ class MenuController extends Controller
             'waLink'    => $waLink,
         ]);
     }
+    public function Cart(Request $request)
+    {
+        $cart = $this->getCart();
+        $total = $this->cartTotal($cart);
+
+        $waLink = $this->buildWhatsappLink($cart, $total);
+
+        return view('cart', [
+            'catalog'   => $this->catalog,
+            'cart'      => $cart,
+            'cartTotal' => $total,
+            'waLink'    => $waLink,
+        ]);
+    }
     private function buildWhatsappLink(array $cart, float $total): string
     {
         // Your business number in E.164 WITHOUT "+" or leading zeros, e.g. 9725XXXXXXXX
@@ -91,7 +105,10 @@ class MenuController extends Controller
         $cart[$product['id']]['qty']++;
 
         session(['cart' => $cart]);
-        return back()->with('success', $product['name'].' added to cart.');
+        return back()->with([
+            'success'=> $product['name'].' added to cart.',
+            'showCartBar' => true
+        ]);
     }
 
     public function remove(Request $request)

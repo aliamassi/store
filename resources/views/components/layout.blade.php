@@ -12,9 +12,6 @@
 {{--    <script src="https://cdn.tailwindcss.com"></script>--}}
     @vite(['resources/js/app.js','resources/css/app.css'])
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
 <div class="max-w-7xl mx-auto p-6">
@@ -68,7 +65,7 @@
         </div>
 
         {{-- RIGHT: Cart --}}
-        <aside class="lg:col-span-1">
+        <aside class="lg:col-span-1" id="cart">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sticky top-6">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-semibold">Your Cart</h2>
@@ -144,17 +141,118 @@
                     @endif
                 </div>
             @endif
-            @if(session('success'))
-                <script>
-                    toastr.success("{{ session('success') }}", "Added to Cart", {
-                        timeOut: 2000,
-                        closeButton: true,
-                        progressBar: true
-                    });
-                </script>
-            @endif
         </aside>
     </div>
 </div>
+
+{{-- MOBILE BOTTOM CART BAR --}}
+@if(session('showCartBar'))
+    <style>
+        /* Hidden by default (desktop/tablet). We’ll show it on small screens only */
+        #mobile-cart-bar {
+            display: none;
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            z-index: 9999;
+            background: #111;               /* dark background */
+            color: #fff;
+            padding: 12px 16px;
+            /* Respect iOS safe area (notches) */
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            box-shadow: 0 -6px 16px rgba(0,0,0,.25);
+        }
+        #mobile-cart-bar .inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        #mobile-cart-bar .title {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        #mobile-cart-bar .btn-cart {
+            background: #ffc107;            /* warm highlight */
+            color: #111;
+            font-weight: 700;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        #mobile-cart-bar .count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #111;
+            background: #fff;
+            border-radius: 9999px;
+        }
+
+        /* Show the bar on phone view only */
+        @media (max-width: 768px) {
+            #mobile-cart-bar { display: block; }
+        }
+    </style>
+
+    <div id="mobile-cart-bar" role="region" aria-label="Cart notification">
+        <div class="inner">
+            <div class="title">
+                <span aria-hidden="true">🛒</span>
+                <span>Item added to your cart</span>
+            </div>
+
+            {{-- Adjust the count if you track it; this example uses the common cart facade --}}
+            <a class="btn-cart" href="#cart">
+                See Your Cart
+                @if(function_exists('Cart') || class_exists('\Cart'))
+                    <span class="count">{{ \Cart::count() }}</span>
+                @endif
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Prevent the bar from covering content: add bottom padding equal to bar height
+        (function () {
+            const bar = document.getElementById('mobile-cart-bar');
+            if (!bar) return;
+            const isPhone = window.matchMedia('(max-width: 768px)').matches;
+            if (!isPhone) return;
+
+            const addSpacer = () => {
+                const h = bar.getBoundingClientRect().height;
+                document.documentElement.style.setProperty('--cart-bar-height', h + 'px');
+                document.body.style.paddingBottom = 'var(--cart-bar-height)';
+            };
+
+            // Initial + on resize (orientation change, keyboard, etc.)
+            addSpacer();
+            window.addEventListener('resize', addSpacer, { passive: true });
+        })();
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const btn = document.querySelector(".btn-cart");
+            if (btn) {
+                btn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    const cart = document.getElementById("cart");
+                    if (cart) {
+                        cart.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                });
+            }
+        });
+    </script>
+@endif
 </body>
 </html>
