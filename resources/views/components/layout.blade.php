@@ -82,7 +82,7 @@
                 @else
                     <div class="mt-4 space-y-3">
                         @foreach ($cart as $line)
-                            <div class="flex gap-3 items-center">
+                            <div class="flex gap-3 items-center cart-item">
                                 <img src="{{ $line['image'] }}" alt="{{ $line['name'] }}"
                                      class="w-14 h-14 rounded-lg object-cover bg-gray-100">
                                 <div class="flex-1">
@@ -92,20 +92,24 @@
                                             ${{ number_format($line['price'] * $line['qty'], 2) }}</p>
                                     </div>
                                     <div class="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                                        <span>Qty: {{ $line['qty'] }}</span>
+                                        <span class="qty">Qty: {{ $line['qty'] }}</span>
 
                                         {{-- -1 --}}
-                                        <form method="POST" action="{{ route('cart.remove') }}">
+                                        <form method="POST" action="{{ route('cart.remove') }}" class="ajax-request"
+                                              data-decrease="yes">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $line['id'] }}">
-                                            <button type="button" class="px-2 py-0.5 border rounded-md hover:bg-gray-50">-1</button>
+                                            @if($line['qty'] > 1)
+                                                <button class="px-2 py-0.5 border rounded-md hover:bg-gray-50 decrease-btn">-1</button>
+                                            @endif
                                         </form>
 
                                         {{-- remove line --}}
-                                        <form method="POST" action="{{ route('cart.removeLine') }}">
+                                        <form method="POST" action="{{ route('cart.removeLine') }}" class="ajax-request"
+                                              data-remove="yes">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $line['id'] }}">
-                                            <button type="button" class="px-2 py-0.5 border rounded-md hover:bg-gray-50 text-red-600">
+                                            <button class="px-2 py-0.5 border rounded-md hover:bg-gray-50 text-red-600">
                                                 remove
                                             </button>
                                         </form>
@@ -130,7 +134,8 @@
                             {{-- icon --}}
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
                                  fill="currentColor">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.67.15-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.254-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.173.198-.297.297-.495.099-.198.05-.371-.025-.52-.074-.149-.669-1.612-.916-2.206-.241-.579-.487-.5-.669-.51l-.571-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.097 3.2 5.082 4.487.71.306 1.264.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.718 2.006-1.411.248-.694.248-1.289.173-1.411-.074-.123-.272-.198-.57-.347zM12.004 2c-5.514 0-9.996 4.482-9.996 9.996 0 1.763.462 3.479 1.34 4.996L2 22l5.145-1.331c1.456.796 3.085 1.214 4.858 1.214 5.514 0 9.996-4.482 9.996-9.996S17.518 2 12.004 2z"/>
+                                <path
+                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.67.15-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.254-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.173.198-.297.297-.495.099-.198.05-.371-.025-.52-.074-.149-.669-1.612-.916-2.206-.241-.579-.487-.5-.669-.51l-.571-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.097 3.2 5.082 4.487.71.306 1.264.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.718 2.006-1.411.248-.694.248-1.289.173-1.411-.074-.123-.272-.198-.57-.347zM12.004 2c-5.514 0-9.996 4.482-9.996 9.996 0 1.763.462 3.479 1.34 4.996L2 22l5.145-1.331c1.456.796 3.085 1.214 4.858 1.214 5.514 0 9.996-4.482 9.996-9.996S17.518 2 12.004 2z"/>
                             </svg>
                         </a>
                     </div>
@@ -278,5 +283,7 @@
         });
     </script>
 @endif
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="/lib/ajax-request.js"></script>
 </body>
 </html>

@@ -9,25 +9,25 @@ class MenuController extends Controller
     // Simple in-memory catalog (you can swap to DB later)
     private array $catalog = [
         'hot-drinks' => [
-            ['id' => 'hd-1', 'name' => 'Espresso',     'price' => 2.50, 'image' => '/images/products/espresso.jpeg'],
-            ['id' => 'hd-2', 'name' => 'Cappuccino',   'price' => 3.25, 'image' => '/images/products/cappuccino.jpeg'],
-            ['id' => 'hd-3', 'name' => 'Latte',        'price' => 3.50, 'image' => '/images/products/latte.jpg'],
-            ['id' => 'hd-4', 'name' => 'Tea',          'price' => 1.80, 'image' => '/images/products/tea.jpeg'],
+            ['id' => 'hd-1', 'name' => 'Espresso', 'price' => 2.50, 'image' => '/images/products/espresso.jpeg'],
+            ['id' => 'hd-2', 'name' => 'Cappuccino', 'price' => 3.25, 'image' => '/images/products/cappuccino.jpeg'],
+            ['id' => 'hd-3', 'name' => 'Latte', 'price' => 3.50, 'image' => '/images/products/latte.jpg'],
+            ['id' => 'hd-4', 'name' => 'Tea', 'price' => 1.80, 'image' => '/images/products/tea.jpeg'],
         ],
         'waffles' => [
             ['id' => 'wf-1', 'name' => 'Classic Waffle', 'price' => 4.50, 'image' => '/images/products/waffle-classic.jpeg'],
             ['id' => 'wf-2', 'name' => 'Chocolate Chip', 'price' => 4.90, 'image' => '/images/products/waffle-choco.jpeg'],
-            ['id' => 'wf-3', 'name' => 'Strawberry',     'price' => 5.20, 'image' => '/images/products/waffle-strawberry.jpeg'],
+            ['id' => 'wf-3', 'name' => 'Strawberry', 'price' => 5.20, 'image' => '/images/products/waffle-strawberry.jpeg'],
         ],
         'ice-cream' => [
-            ['id' => 'ic-1', 'name' => 'Vanilla Scoop',  'price' => 2.20, 'image' => '/images/products/vanilla-ice-cream.jpeg'],
-            ['id' => 'ic-2', 'name' => 'Chocolate Scoop','price' => 2.20, 'image' => '/images/products/chocolate-ice-cream.jpeg'],
-            ['id' => 'ic-3', 'name' => 'Mint Scoop',     'price' => 2.40, 'image' => '/images/products/mint-ice-cream.jpeg'],
+            ['id' => 'ic-1', 'name' => 'Vanilla Scoop', 'price' => 2.20, 'image' => '/images/products/vanilla-ice-cream.jpeg'],
+            ['id' => 'ic-2', 'name' => 'Chocolate Scoop', 'price' => 2.20, 'image' => '/images/products/chocolate-ice-cream.jpeg'],
+            ['id' => 'ic-3', 'name' => 'Mint Scoop', 'price' => 2.40, 'image' => '/images/products/mint-ice-cream.jpeg'],
         ],
         'juices' => [
-            ['id' => 'js-1', 'name' => 'Orange Juice',   'price' => 2.80, 'image' => '/images/products/orange.jpeg'],
-            ['id' => 'js-2', 'name' => 'Apple Juice',    'price' => 2.60, 'image' => '/images/products/apple.jpeg'],
-            ['id' => 'js-3', 'name' => 'Mango Juice',    'price' => 3.00, 'image' => '/images/products/mango.jpeg'],
+            ['id' => 'js-1', 'name' => 'Orange Juice', 'price' => 2.80, 'image' => '/images/products/orange.jpeg'],
+            ['id' => 'js-2', 'name' => 'Apple Juice', 'price' => 2.60, 'image' => '/images/products/apple.jpeg'],
+            ['id' => 'js-3', 'name' => 'Mango Juice', 'price' => 3.00, 'image' => '/images/products/mango.jpeg'],
         ],
     ];
 
@@ -39,12 +39,13 @@ class MenuController extends Controller
         $waLink = $this->buildWhatsappLink($cart, $total);
 
         return view('menu', [
-            'catalog'   => $this->catalog,
-            'cart'      => $cart,
+            'catalog' => $this->catalog,
+            'cart' => $cart,
             'cartTotal' => $total,
-            'waLink'    => $waLink,
+            'waLink' => $waLink,
         ]);
     }
+
     public function Cart(Request $request)
     {
         $cart = $this->getCart();
@@ -53,12 +54,13 @@ class MenuController extends Controller
         $waLink = $this->buildWhatsappLink($cart, $total);
 
         return view('cart', [
-            'catalog'   => $this->catalog,
-            'cart'      => $cart,
+            'catalog' => $this->catalog,
+            'cart' => $cart,
             'cartTotal' => $total,
-            'waLink'    => $waLink,
+            'waLink' => $waLink,
         ]);
     }
+
     private function buildWhatsappLink(array $cart, float $total): string
     {
         // Your business number in E.164 WITHOUT "+" or leading zeros, e.g. 9725XXXXXXXX
@@ -80,6 +82,7 @@ class MenuController extends Controller
         $base = $phone ? "https://wa.me/{$phone}" : "https://wa.me/";
         return $base . '?text=' . rawurlencode($text);
     }
+
     public function add(Request $request)
     {
         $data = $request->validate([
@@ -95,21 +98,21 @@ class MenuController extends Controller
 
         if (!isset($cart[$product['id']])) {
             $cart[$product['id']] = [
-                'id'    => $product['id'],
-                'name'  => $product['name'],
+                'id' => $product['id'],
+                'name' => $product['name'],
                 'price' => $product['price'],
                 'image' => $product['image'],
-                'qty'   => 0,
+                'qty' => 0,
             ];
         }
         $cart[$product['id']]['qty']++;
         $total = $this->cartTotal($cart);
         session(['cart' => $cart]);
         return back()->with([
-            'success'=> $product['name'].' added to cart.',
+            'success' => $product['name'] . ' added to cart.',
             'showCartBar' => true,
             'total' => "$$total",
-            'count' =>  array_sum(array_map(fn($i)=>$i['qty'],$cart)),
+            'count' => array_sum(array_map(fn($i) => $i['qty'], $cart)),
         ]);
     }
 
@@ -127,7 +130,11 @@ class MenuController extends Controller
             }
             session(['cart' => $cart]);
         }
-        return back();
+        return response()->json([
+            'status' => true,
+            'qty' => $cart[$data['id']]['qty'],
+            'message' => 'Successfully removed'
+        ]);
     }
 
     public function removeLine(Request $request)
@@ -141,7 +148,10 @@ class MenuController extends Controller
             unset($cart[$data['id']]);
             session(['cart' => $cart]);
         }
-        return back();
+        return response()->json([
+            'status' => true,
+            'message' => 'Successfully removed'
+        ]);
     }
 
     public function clear()
