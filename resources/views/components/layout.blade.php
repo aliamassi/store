@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" x-data="{ tab: 'hot-drinks' }">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Café Menu</title>
 
     {{-- If you use Vite + Tailwind in Laravel, keep this and remove the CDN below --}}
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
     {{-- Quick start (remove in production if using Vite) --}}
-{{--    <script src="https://cdn.tailwindcss.com"></script>--}}
+    {{--    <script src="https://cdn.tailwindcss.com"></script>--}}
     @vite(['resources/js/app.js','resources/css/app.css'])
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -17,7 +17,7 @@
 <div class="max-w-7xl mx-auto p-6">
     <header class="mb-6 flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-bold">Menu</h1>
+            <h1 class="text-3xl font-bold">Milano Flower</h1>
             <p class="text-sm text-gray-500">Click any item to add it to your cart.</p>
         </div>
 
@@ -33,12 +33,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- LEFT: Products --}}
         <div class="lg:col-span-2">
-            {{-- Tabs --}}
-            <div class="flex border-b border-gray-200 mb-4 overflow-x-auto">
-                <x-tab-button tab="hot-drinks"> Hot Drinks</x-tab-button>
-                <x-tab-button tab="waffles"> Waffles</x-tab-button>
-                <x-tab-button tab="ice-cream"> Ice Cream</x-tab-button>
-                <x-tab-button tab="juices"> Juices</x-tab-button>
+            <div class="sticky border-0 top-0  z-50 bg-white shadow">
+                {{-- Tabs --}}
+                <div class="flex border-b border-gray-200 mb-4 overflow-x-auto">
+                    <x-tab-button tab="hot-drinks"> Hot Drinks</x-tab-button>
+                    <x-tab-button tab="waffles"> Waffles</x-tab-button>
+                    <x-tab-button tab="ice-cream"> Ice Cream</x-tab-button>
+                    <x-tab-button tab="juices"> Juices</x-tab-button>
+                </div>
             </div>
 
             {{-- Panels --}}
@@ -81,11 +83,13 @@
                     <div class="mt-4 space-y-3">
                         @foreach ($cart as $line)
                             <div class="flex gap-3 items-center">
-                                <img src="{{ $line['image'] }}" alt="{{ $line['name'] }}" class="w-14 h-14 rounded-lg object-cover bg-gray-100">
+                                <img src="{{ $line['image'] }}" alt="{{ $line['name'] }}"
+                                     class="w-14 h-14 rounded-lg object-cover bg-gray-100">
                                 <div class="flex-1">
                                     <div class="flex justify-between">
                                         <p class="font-medium">{{ $line['name'] }}</p>
-                                        <p class="font-semibold">${{ number_format($line['price'] * $line['qty'], 2) }}</p>
+                                        <p class="font-semibold">
+                                            ${{ number_format($line['price'] * $line['qty'], 2) }}</p>
                                     </div>
                                     <div class="flex items-center gap-2 text-sm text-gray-600 mt-1">
                                         <span>Qty: {{ $line['qty'] }}</span>
@@ -94,17 +98,20 @@
                                         <form method="POST" action="{{ route('cart.remove') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $line['id'] }}">
-                                            <button class="px-2 py-0.5 border rounded-md hover:bg-gray-50">-1</button>
+                                            <button type="button" class="px-2 py-0.5 border rounded-md hover:bg-gray-50">-1</button>
                                         </form>
 
                                         {{-- remove line --}}
                                         <form method="POST" action="{{ route('cart.removeLine') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $line['id'] }}">
-                                            <button class="px-2 py-0.5 border rounded-md hover:bg-gray-50 text-red-600">remove</button>
+                                            <button type="button" class="px-2 py-0.5 border rounded-md hover:bg-gray-50 text-red-600">
+                                                remove
+                                            </button>
                                         </form>
                                     </div>
-                                    <p class="text-xs text-gray-400 mt-0.5">${{ number_format($line['price'],2) }} each</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">${{ number_format($line['price'],2) }}
+                                        each</p>
                                 </div>
                             </div>
                         @endforeach
@@ -121,7 +128,8 @@
                            class="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5">
                             Go WhatsApp
                             {{-- icon --}}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
+                                 fill="currentColor">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.67.15-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.254-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.173.198-.297.297-.495.099-.198.05-.371-.025-.52-.074-.149-.669-1.612-.916-2.206-.241-.579-.487-.5-.669-.51l-.571-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.097 3.2 5.082 4.487.71.306 1.264.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.718 2.006-1.411.248-.694.248-1.289.173-1.411-.074-.123-.272-.198-.57-.347zM12.004 2c-5.514 0-9.996 4.482-9.996 9.996 0 1.763.462 3.479 1.34 4.996L2 22l5.145-1.331c1.456.796 3.085 1.214 4.858 1.214 5.514 0 9.996-4.482 9.996-9.996S17.518 2 12.004 2z"/>
                             </svg>
                         </a>
@@ -152,21 +160,25 @@
         #mobile-cart-bar {
             display: none;
             position: fixed;
-            left: 0; right: 0; bottom: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             z-index: 9999;
-            background: #111;               /* dark background */
+            background: #111; /* dark background */
             color: #fff;
             padding: 12px 16px;
             /* Respect iOS safe area (notches) */
             padding-bottom: calc(12px + env(safe-area-inset-bottom));
-            box-shadow: 0 -6px 16px rgba(0,0,0,.25);
+            box-shadow: 0 -6px 16px rgba(0, 0, 0, .25);
         }
+
         #mobile-cart-bar .inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
         }
+
         #mobile-cart-bar .title {
             display: flex;
             gap: 10px;
@@ -174,8 +186,9 @@
             font-weight: 600;
             font-size: 15px;
         }
+
         #mobile-cart-bar .btn-cart {
-            background: #ffc107;            /* warm highlight */
+            background: #ffc107; /* warm highlight */
             color: #111;
             font-weight: 700;
             border: 0;
@@ -185,6 +198,7 @@
             white-space: nowrap;
             width: 100%;
         }
+
         #mobile-cart-bar .count {
             display: inline-flex;
             align-items: center;
@@ -201,18 +215,14 @@
 
         /* Show the bar on phone view only */
         @media (max-width: 768px) {
-            #mobile-cart-bar { display: block; }
+            #mobile-cart-bar {
+                display: block;
+            }
         }
     </style>
 
     <div id="mobile-cart-bar" role="region" aria-label="Cart notification">
         <div class="inner">
-{{--            <div class="title">--}}
-{{--                <span aria-hidden="true">🛒</span>--}}
-{{--                <span>Item added to your cart</span>--}}
-{{--            </div>--}}
-
-            {{-- Adjust the count if you track it; this example uses the common cart facade --}}
             <a href="#cart"
                class="btn-cart relative flex items-center justify-between w-full max-w-sm bg-yellow-400 text-black font-bold rounded-lg px-4 py-2 shadow-md">
 
@@ -251,17 +261,17 @@
 
             // Initial + on resize (orientation change, keyboard, etc.)
             addSpacer();
-            window.addEventListener('resize', addSpacer, { passive: true });
+            window.addEventListener('resize', addSpacer, {passive: true});
         })();
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const btn = document.querySelector(".btn-cart");
             if (btn) {
-                btn.addEventListener("click", function(e) {
+                btn.addEventListener("click", function (e) {
                     e.preventDefault();
                     const cart = document.getElementById("cart");
                     if (cart) {
-                        cart.scrollIntoView({ behavior: "smooth", block: "start" });
+                        cart.scrollIntoView({behavior: "smooth", block: "start"});
                     }
                 });
             }
