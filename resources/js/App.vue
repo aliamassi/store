@@ -44,7 +44,7 @@ import { ref, onMounted } from 'vue'
 import TabButton from './components/TabButton.vue'
 import ProductCard from './components/ProductCard.vue'
 import CartPanel from './components/CartPanel.vue'
-import { useCart } from './composables/useCart'
+import { useCart } from '../composables/useCart'
 
 const { add, count, total } = useCart()
 const tab = ref('hot-drinks')
