@@ -63,11 +63,8 @@ class MenuController extends Controller
 
     private function buildWhatsappLink(array $cart, float $total): string
     {
-        // Your business number in E.164 WITHOUT "+" or leading zeros, e.g. 9725XXXXXXXX
-        // Put it in .env as WHATSAPP_PHONE=9725XXXXXXXX
-        $phone = env('WHATSAPP_PHONE'); // optional
+        $phone = env('WHATSAPP_PHONE'); // example: 97259XXXXXXX
 
-        // Build the message
         $lines = [];
         $lines[] = "Hello! I'd like to order:";
         foreach ($cart as $line) {
@@ -78,10 +75,15 @@ class MenuController extends Controller
 
         $text = implode("\n", $lines);
 
-        // Build wa.me link (with or without a specific phone)
-        $base = $phone ? "https://wa.me/{$phone}" : "https://wa.me/";
-        return $base . '?text=' . rawurlencode($text);
+        if ($phone) {
+            // requires correct phone format
+            return "https://wa.me/{$phone}?text=" . rawurlencode($text);
+        }
+
+        // fallback if no phone configured
+        return "https://api.whatsapp.com/send?text=" . rawurlencode($text);
     }
+
 
     public function add(Request $request)
     {

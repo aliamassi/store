@@ -37,7 +37,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { useCart } from '../composables/useCart'
+import {useCart} from '../../composables/useCart.js'
 const { items, total, decrease, removeLine, clear, buildWhatsAppLink } = useCart()
 const waLink = computed(() => buildWhatsAppLink())
 </script>
