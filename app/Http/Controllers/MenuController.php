@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\WhatsappService;
+use Illuminate\Support\Facades\Http;
 
 class MenuController extends Controller
 {
@@ -53,6 +55,7 @@ class MenuController extends Controller
 
         $waLink = $this->buildWhatsappLink($cart, $total);
 
+
         return view('cart', [
             'catalog' => $this->catalog,
             'cart' => $cart,
@@ -61,45 +64,93 @@ class MenuController extends Controller
         ]);
     }
 
-    private function buildWhatsappLink(array $cart, float $total): string
+    private function buildWhatsappLink(array $cart, float $total, ?string $imageUrl = null): string
     {
-        $phone = env('WHATSAPP_PHONE'); // Example: 972597072026
+        $phone = env('WHATSAPP_PHONE', '972597072026'); // default phone
 
         $lines = [];
         $lines[] = "Hello! I'd like to order:";
-        $lines[] = ""; // Empty line for better formatting
+        $lines[] = "";
 
         foreach ($cart as $line) {
             $lineTotal = number_format($line['price'] * $line['qty'], 2);
             $lines[] = "• {$line['name']} x {$line['qty']} = \${$lineTotal}";
         }
 
-        $lines[] = ""; // Empty line before total
+        $lines[] = "";
         $lines[] = "📊 *Total: $" . number_format($total, 2) . "*";
         $lines[] = "";
         $lines[] = "Thank you! 🙏";
 
-        $text = implode("\n", $lines);
-
-        if ($phone) {
-            // Clean phone number: remove spaces, dashes, plus signs, parentheses
-            $cleanPhone = preg_replace('/[\s\-\+\(\)]/', '', $phone);
-
-            // If phone starts with "00", convert to proper international format
-            if (str_starts_with($cleanPhone, '00')) {
-                $cleanPhone = substr($cleanPhone, 2);
-            }
-
-            // Validate phone number format (digits only, 10–15 length)
-            if (!preg_match('/^\d{10,15}$/', $cleanPhone)) {
-                \Log::warning("Invalid WhatsApp phone format: {$phone}");
-                return $this->getFallbackWhatsappLink($text);
-            }
-
-            return "https://wa.me/{$cleanPhone}?text=" . rawurlencode($text);
+        if ($imageUrl) {
+            $lines[] = "";
+            $lines[] = "🖼 Product image: {$imageUrl}";
         }
 
-        return $this->getFallbackWhatsappLink($text);
+        $text = implode("\n", $lines);
+
+        // clean number
+        $cleanPhone = preg_replace('/\D/', '', $phone);
+
+        return "https://wa.me/{$cleanPhone}?text=" . rawurlencode($text);
+    }
+
+    public function order(Request $request)
+    {
+        // Example cart
+        $cart = [
+            ['name' => 'Pizza', 'price' => 30.00, 'qty' => 1],
+            ['name' => 'Burger', 'price' => 15.00, 'qty' => 2],
+        ];
+        $total = 60.00;
+
+        $this->sendWhatsappOrder($cart, $total, asset('images/sample.jpg'));
+
+        return view('menu', compact('cart', 'total'));
+    }
+
+    private function sendWhatsappOrder(array $cart, float $total, ?string $imageUrl = null): void
+    {
+        $accessToken = env('WHATSAPP_ACCESS_TOKEN');
+        $phoneId     = env('WHATSAPP_PHONE_ID');
+        $receiver    = env('WHATSAPP_RECEIVER');
+
+        $lines = [];
+        $lines[] = "Hello! I'd like to order:";
+        foreach ($cart as $line) {
+            $lineTotal = number_format($line['price'] * $line['qty'], 2);
+            $lines[] = "• {$line['name']} x {$line['qty']} = \${$lineTotal}";
+        }
+        $lines[] = "";
+        $lines[] = "📊 *Total: $" . number_format($total, 2) . "*";
+        $lines[] = "";
+        $lines[] = "Thank you! 🙏";
+
+        $textMessage = implode("\n", $lines);
+
+        // 1️⃣ Send text message
+        Http::withToken($accessToken)
+            ->post("https://graph.facebook.com/v21.0/{$phoneId}/messages", [
+                "messaging_product" => "whatsapp",
+                "to" => $receiver,
+                "type" => "text",
+                "text" => [
+                    "body" => $textMessage
+                ]
+            ]);
+
+        // 2️⃣ Send image (optional)
+        if ($imageUrl) {
+            Http::withToken($accessToken)
+                ->post("https://graph.facebook.com/v21.0/{$phoneId}/messages", [
+                    "messaging_product" => "whatsapp",
+                    "to" => $receiver,
+                    "type" => "image",
+                    "image" => [
+                        "link" => $imageUrl
+                    ]
+                ]);
+        }
     }
 
     private function getFallbackWhatsappLink(string $text): string
