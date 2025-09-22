@@ -108,7 +108,8 @@ class MenuController extends Controller
         $cart = $this->getCart();
         $cartTotal = $this->cartTotal($cart);
         $catalog = $this->catalog;
-        return view('menu', compact('catalog','cart', 'cartTotal'));
+        $waLink = '';
+        return view('menu', compact('waLink','catalog','cart', 'cartTotal'));
     }
 
     private function sendWhatsappOrder(array $cart, float $total, ?string $imageUrl = null): void
