@@ -105,7 +105,8 @@ class MenuController extends Controller
         $total = 60.00;
 
         $this->sendWhatsappOrder($cart, $total, asset('images/sample.jpg'));
-
+        $cart = $this->getCart();
+        $total = $this->cartTotal($cart);
         return view('menu', compact('cart', 'total'));
     }
 
