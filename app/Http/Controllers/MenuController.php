@@ -63,28 +63,55 @@ class MenuController extends Controller
 
     private function buildWhatsappLink(array $cart, float $total): string
     {
-        $phone = env('WHATSAPP_PHONE'); // example: 97259XXXXXXX
+        $phone = env('WHATSAPP_PHONE');
 
         $lines = [];
         $lines[] = "Hello! I'd like to order:";
+        $lines[] = ""; // Empty line for better formatting
+
         foreach ($cart as $line) {
             $lineTotal = number_format($line['price'] * $line['qty'], 2);
-            $lines[] = "- {$line['name']} x {$line['qty']} = \${$lineTotal}";
+            $lines[] = "• {$line['name']} x {$line['qty']} = \${$lineTotal}";
         }
-        $lines[] = "Total: $" . number_format($total, 2);
+
+        $lines[] = ""; // Empty line before total
+        $lines[] = "📊 *Total: $" . number_format($total, 2) . "*";
+        $lines[] = "";
+        $lines[] = "Thank you! 🙏";
 
         $text = implode("\n", $lines);
 
         if ($phone) {
-            // requires correct phone format
-            return "https://wa.me/{$phone}?text=" . rawurlencode($text);
+            // Clean phone number: remove spaces, dashes, plus signs
+            $cleanPhone = preg_replace('/[\s\-\+\(\)]/', '', $phone);
+
+            // Validate phone number format (digits only)
+            if (!preg_match('/^\d{10,15}$/', $cleanPhone)) {
+                \Log::warning("Invalid WhatsApp phone format: {$phone}");
+                return $this->getFallbackWhatsappLink($text);
+            }
+
+            return "https://wa.me/{$cleanPhone}?text=" . urlencode($text);
         }
 
-        // fallback if no phone configured
-        return "https://api.whatsapp.com/send?text=" . rawurlencode($text);
+        return $this->getFallbackWhatsappLink($text);
     }
 
+    private function getFallbackWhatsappLink(string $text): string
+    {
+        return "https://api.whatsapp.com/send?text=" . urlencode($text);
+    }
 
+// Alternative method to test the link
+    private function testWhatsappLink(): void
+    {
+        $testCart = [
+            ['name' => 'Test Item', 'price' => 10.00, 'qty' => 2]
+        ];
+
+        $link = $this->buildWhatsappLink($testCart, 20.00);
+        \Log::info("WhatsApp Link: {$link}");
+    }
     public function add(Request $request)
     {
         $data = $request->validate([
