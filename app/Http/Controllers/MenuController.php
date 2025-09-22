@@ -63,7 +63,7 @@ class MenuController extends Controller
 
     private function buildWhatsappLink(array $cart, float $total): string
     {
-        $phone = env('WHATSAPP_PHONE');
+        $phone = env('WHATSAPP_PHONE'); // Example: 972597072026
 
         $lines = [];
         $lines[] = "Hello! I'd like to order:";
@@ -82,16 +82,21 @@ class MenuController extends Controller
         $text = implode("\n", $lines);
 
         if ($phone) {
-            // Clean phone number: remove spaces, dashes, plus signs
+            // Clean phone number: remove spaces, dashes, plus signs, parentheses
             $cleanPhone = preg_replace('/[\s\-\+\(\)]/', '', $phone);
 
-            // Validate phone number format (digits only)
+            // If phone starts with "00", convert to proper international format
+            if (str_starts_with($cleanPhone, '00')) {
+                $cleanPhone = substr($cleanPhone, 2);
+            }
+
+            // Validate phone number format (digits only, 10–15 length)
             if (!preg_match('/^\d{10,15}$/', $cleanPhone)) {
                 \Log::warning("Invalid WhatsApp phone format: {$phone}");
                 return $this->getFallbackWhatsappLink($text);
             }
 
-            return "https://wa.me/{$cleanPhone}?text=" . urlencode($text);
+            return "https://wa.me/{$cleanPhone}?text=" . rawurlencode($text);
         }
 
         return $this->getFallbackWhatsappLink($text);
@@ -99,19 +104,9 @@ class MenuController extends Controller
 
     private function getFallbackWhatsappLink(string $text): string
     {
-        return "https://api.whatsapp.com/send?text=" . urlencode($text);
+        return "https://api.whatsapp.com/send?text=" . rawurlencode($text);
     }
 
-// Alternative method to test the link
-    private function testWhatsappLink(): void
-    {
-        $testCart = [
-            ['name' => 'Test Item', 'price' => 10.00, 'qty' => 2]
-        ];
-
-        $link = $this->buildWhatsappLink($testCart, 20.00);
-        \Log::info("WhatsApp Link: {$link}");
-    }
     public function add(Request $request)
     {
         $data = $request->validate([
