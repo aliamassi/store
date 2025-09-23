@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\WhatsappService;
-use Illuminate\Support\Facades\Http;
-
 class MenuController extends Controller
 {
     // Simple in-memory catalog (you can swap to DB later)
@@ -64,96 +62,45 @@ class MenuController extends Controller
         ]);
     }
 
-    private function buildWhatsappLink(array $cart, float $total, ?string $imageUrl = null): string
+    private function buildWhatsappLink(array $cart, float $total): string
     {
-        $phone = env('WHATSAPP_PHONE', '972597072026'); // default phone
+        $phone = env('WHATSAPP_PHONE'); // Example: 972597072026
 
         $lines = [];
         $lines[] = "Hello! I'd like to order:";
-        $lines[] = "";
+        $lines[] = ""; // Empty line for better formatting
 
         foreach ($cart as $line) {
             $lineTotal = number_format($line['price'] * $line['qty'], 2);
             $lines[] = "• {$line['name']} x {$line['qty']} = \${$lineTotal}";
         }
 
-        $lines[] = "";
+        $lines[] = ""; // Empty line before total
         $lines[] = "📊 *Total: $" . number_format($total, 2) . "*";
         $lines[] = "";
         $lines[] = "Thank you! 🙏";
-
-        if ($imageUrl) {
-            $lines[] = "";
-            $lines[] = "🖼 Product image: {$imageUrl}";
-        }
 
         $text = implode("\n", $lines);
 
-        // clean number
-        $cleanPhone = preg_replace('/\D/', '', $phone);
+        if ($phone) {
+            // Clean phone number: remove spaces, dashes, plus signs, parentheses
+            $cleanPhone = preg_replace('/[\s\-\+\(\)]/', '', $phone);
 
-        return "https://wa.me/{$cleanPhone}?text=" . rawurlencode($text);
-    }
+            // If phone starts with "00", convert to proper international format
+            if (str_starts_with($cleanPhone, '00')) {
+                $cleanPhone = substr($cleanPhone, 2);
+            }
 
-    public function order(Request $request)
-    {
-        // Example cart
-        $cart = [
-            ['name' => 'Pizza', 'price' => 30.00, 'qty' => 1],
-            ['name' => 'Burger', 'price' => 15.00, 'qty' => 2],
-        ];
-        $total = 60.00;
+            // Validate phone number format (digits only, 10–15 length)
+            if (!preg_match('/^\d{10,15}$/', $cleanPhone)) {
+                \Log::warning("Invalid WhatsApp phone format: {$phone}");
+                return $this->getFallbackWhatsappLink($text);
+            }
 
-        $this->sendWhatsappOrder($cart, $total, asset('images/sample.jpg'));
-        $cart = $this->getCart();
-        $cartTotal = $this->cartTotal($cart);
-        $catalog = $this->catalog;
-        $waLink = '';
-        return view('menu', compact('waLink','catalog','cart', 'cartTotal'));
-    }
-
-    private function sendWhatsappOrder(array $cart, float $total, ?string $imageUrl = null): void
-    {
-        $accessToken = env('WHATSAPP_ACCESS_TOKEN');
-        $phoneId     = env('WHATSAPP_PHONE_ID');
-        $receiver    = env('WHATSAPP_RECEIVER');
-
-        $lines = [];
-        $lines[] = "Hello! I'd like to order:";
-        foreach ($cart as $line) {
-            $lineTotal = number_format($line['price'] * $line['qty'], 2);
-            $lines[] = "• {$line['name']} x {$line['qty']} = \${$lineTotal}";
+            return "https://wa.me/{$cleanPhone}?text=" . rawurlencode($text);
         }
-        $lines[] = "";
-        $lines[] = "📊 *Total: $" . number_format($total, 2) . "*";
-        $lines[] = "";
-        $lines[] = "Thank you! 🙏";
 
-        $textMessage = implode("\n", $lines);
-
-        // 1️⃣ Send text message
-        Http::withToken($accessToken)
-            ->post("https://graph.facebook.com/v21.0/{$phoneId}/messages", [
-                "messaging_product" => "whatsapp",
-                "to" => $receiver,
-                "type" => "text",
-                "text" => [
-                    "body" => $textMessage
-                ]
-            ]);
-
-        // 2️⃣ Send image (optional)
-        if ($imageUrl) {
-            Http::withToken($accessToken)
-                ->post("https://graph.facebook.com/v21.0/{$phoneId}/messages", [
-                    "messaging_product" => "whatsapp",
-                    "to" => $receiver,
-                    "type" => "image",
-                    "image" => [
-                        "link" => $imageUrl
-                    ]
-                ]);
-        }
+        return $this->getFallbackWhatsappLink($text);
     }
 
     private function getFallbackWhatsappLink(string $text): string
