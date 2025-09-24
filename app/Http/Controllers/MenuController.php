@@ -229,12 +229,32 @@ class MenuController extends Controller
         $total = $this->cartTotal($cart);
         session(['cart' => $cart]);
 
-        return back()->with([
+        $cart = $this->getCart();
+        $total = $this->cartTotal($cart);
+
+        $waLink = $this->buildWhatsappLink($cart, $total);
+
+        $view = view('partial.cart', [
             'success' => $product['name'] . ' added to cart.',
             'showCartBar' => true,
             'total' => "$$total",
+            'cartTotal' => "$total",
+            'waLink' => "$waLink",
+            'cart' => $cart,
+            'catalog' => $this->catalog,
             'count' => array_sum(array_map(fn($i) => $i['qty'], $cart)),
+        ])->render();
+        return response()->json([
+            'status' => true,
+            'view' => $view,
+
         ]);
+//        return back()->with([
+//            'success' => $product['name'] . ' added to cart.',
+//            'showCartBar' => true,
+//            'total' => "$$total",
+//            'count' => array_sum(array_map(fn($i) => $i['qty'], $cart)),
+//        ]);
     }
 
     public function remove(Request $request)
