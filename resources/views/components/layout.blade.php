@@ -18,7 +18,7 @@
 <div class="max-w-7xl mx-auto p-6">
     <header class="mb-6 flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-bold">Milano Flower</h1>
+            <h1 class="text-3xl font-bold">Scoop</h1>
             <p class="text-sm text-gray-500">Click any item to add it to your cart.</p>
         </div>
 
