@@ -226,7 +226,6 @@ class MenuController extends Controller
             ];
         }
         $cart[$product['id']]['qty']++;
-        $total = $this->cartTotal($cart);
         session(['cart' => $cart]);
 
         $cart = $this->getCart();
@@ -234,7 +233,10 @@ class MenuController extends Controller
 
         $waLink = $this->buildWhatsappLink($cart, $total);
 
-        $view = view('partial.cart', [
+        session()->put('showCartBar', true);
+        session()->put('total', "$$total");
+        session()->put('count', array_sum(array_map(fn($i) => $i['qty'], $cart)));
+        $cart_view = view('partial.cart', [
             'success' => $product['name'] . ' added to cart.',
             'showCartBar' => true,
             'total' => "$$total",
@@ -244,9 +246,16 @@ class MenuController extends Controller
             'catalog' => $this->catalog,
             'count' => array_sum(array_map(fn($i) => $i['qty'], $cart)),
         ])->render();
+        $mobile_cart_view = view('partial.mobile_cart', [
+            'success' => $product['name'] . ' added to cart.',
+            'showCartBar' => true,
+            'total' => "$$total",
+            'count' => array_sum(array_map(fn($i) => $i['qty'], $cart)),
+        ])->render();
         return response()->json([
             'status' => true,
-            'view' => $view,
+            'cart_view' => $cart_view,
+            'mobile_cart_view' => $mobile_cart_view,
 
         ]);
 //        return back()->with([
@@ -291,8 +300,21 @@ class MenuController extends Controller
             session(['cart' => $cart]);
         }
 
+        $cart = $this->getCart();
+        $total = $this->cartTotal($cart);
+        session()->put('total', "$$total");
+        session()->put('count', array_sum(array_map(fn($i) => $i['qty'], $cart)));
+
+        $mobile_cart_view = view('partial.mobile_cart', [
+            'success' => 'Item removed from cart.',
+            'showCartBar' => true,
+            'total' => "$$total",
+            'count' => array_sum(array_map(fn($i) => $i['qty'], $cart)),
+        ])->render();
+
         return response()->json([
             'status' => true,
+            'mobile_cart_view' => $mobile_cart_view,
             'message' => 'Successfully removed'
         ]);
     }

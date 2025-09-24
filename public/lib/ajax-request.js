@@ -31,6 +31,8 @@
                     if (data.status) {
                         if(form.data('remove')){
                             form.parents('.cart-item').remove();
+                            console.log(data);
+                             $('#mobile-cart-bar').html(data.mobile_cart_view);
                         }
                         if(form.data('decrease')){
                             form.siblings('.qty').html("Qty: "+data.qty);
