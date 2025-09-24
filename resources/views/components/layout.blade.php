@@ -85,7 +85,7 @@
         <div class="max-w-7xl mx-auto  py-3 flex items-center justify-between">
             <!-- Logo -->
             <a href="{{ url('/') }}" class="flex items-center">
-                <img style="width: 100px;" src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="h-10 w-auto">
+                <img style="height: 80px;" src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="h-10 w-auto">
 {{--                <span class="ml-2 text-xl font-bold text-gray-700">Scoop</span>--}}
             </a>
         </div>
