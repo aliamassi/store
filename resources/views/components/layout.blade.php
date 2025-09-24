@@ -79,22 +79,31 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="antialiased bg-gray-100">
 <div class="max-w-7xl mx-auto p-6">
-    <header class="mb-6 flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-bold">Scoop</h1>
-            <p class="text-sm text-gray-500">Click any item to add it to your cart.</p>
-        </div>
-
-        {{-- Cart summary badge --}}
-        <div class="flex items-center gap-2">
-            @php $cartCount = array_sum(array_map(fn($i)=>$i['qty'],$cart)); @endphp
-            <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-emerald-700 text-sm">
-                    Cart: <strong class="ml-1">{{ $cartCount }}</strong> items
-                </span>
+    <header class="">
+        <div class="max-w-7xl mx-auto  py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="{{ url('/') }}" class="flex items-center">
+                <img style="width: 100px;" src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="h-10 w-auto">
+{{--                <span class="ml-2 text-xl font-bold text-gray-700">Scoop</span>--}}
+            </a>
         </div>
     </header>
+{{--    <header class="mb-6 flex items-center justify-between">--}}
+{{--        <div>--}}
+{{--            <h1 class="text-3xl font-bold">Scoop</h1>--}}
+{{--            <p class="text-sm text-gray-500">Click any item to add it to your cart.</p>--}}
+{{--        </div>--}}
+
+{{--        --}}{{-- Cart summary badge --}}
+{{--        <div class="flex items-center gap-2">--}}
+{{--            @php $cartCount = array_sum(array_map(fn($i)=>$i['qty'],$cart)); @endphp--}}
+{{--            <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-emerald-700 text-sm">--}}
+{{--                    Cart: <strong class="ml-1">{{ $cartCount }}</strong> items--}}
+{{--                </span>--}}
+{{--        </div>--}}
+{{--    </header>--}}
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- LEFT: Products --}}
